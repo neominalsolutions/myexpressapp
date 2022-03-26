@@ -1,0 +1,93 @@
+#!/usr/bin/env node
+
+// npm start dediğimizde web uygulamamız bu dosya içerisinde çalışır.
+
+/**
+ * Module dependencies.
+ */
+
+var app = require('../app'); // uygulamın ayağa kaldığı js dosyası. Aynı react deki appjs dosyasına benzer
+var debug = require('debug')('myexpressapp:server');
+var http = require('http'); // nodejs http paketinden gelir. ve bir web isteği almamızı sağlar. Commenjs ile module yükleme mantığı var o yüzden bir js paketini import etmek için require keyword kullanırız. Module yükleme standartı CommonJs dir.
+// import http from 'http' aynı anlama gelir.
+
+/**
+ * Get port from environment and store in Express.
+ */
+// uygulama 3000 portu üzerinden çalışacak şekilde ayarlanmıştır. localhost:3000 den çalışacak.
+var port = normalizePort(process.env.PORT || '5000');
+app.set('port', port);
+
+/**
+ * Create HTTP server.
+ */
+
+var server = http.createServer(app); // nodejs createServer function ile appjs dosyasında ayarlar nodejs sunucuna tanıtılır. ve bir web hizmeti yaratılır.
+
+/**
+ * Listen on provided port, on all network interfaces.
+ */
+
+server.listen(port); // server oluştu 3000 port üzerinden ayağa kalksın.
+server.on('error', onError); // sunucu ile ilgili eventler sunucuda çalışma zamanında bir hata varsa buradaki onError function çalışır.
+server.on('listening', onListening); // sunucu ilk ayağa kalktığın onListening function çalışır.
+
+/**
+ * Normalize a port into a number, string, or false.
+ */
+
+function normalizePort(val) {
+  var port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  var bind = typeof port === 'string'
+    ? 'Pipe ' + port
+    : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+
+function onListening() {
+  var addr = server.address(); // localhost gelicek bize ama gerçekte bu yayınlandığı zaman www.a.com şeklinde addresi yakalarız.
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  debug('Listening on ' + bind);
+}
