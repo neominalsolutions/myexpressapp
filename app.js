@@ -4,11 +4,13 @@ var express = require('express'); // uygulamaya express framework ile çalışma
 var path = require('path'); // sunucu tarafındaki dosya dizinlerini okumak için nodejs path library kullandık.
 var cookieParser = require('cookie-parser'); // her web isteğinde tarayıcıda kullanıcıya ait bilgileri okuyabilmek için cookie-parser denilen bir paket yüklenmiştir.
 var logger = require('morgan'); // loglama işlemi yapan bir paket.
-
+var MongoClient = require('mongodb').MongoClient // npm i mongodb
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var cors = require('cors') // cors cross origin request sharing demek yani farklı domainler arası kaynak paylaşımı paketi. bir api uygulaması yaptığımızda 2 farklı uygulamayı farklı domainler altından farklı portlar altından çıkardığımızda yani api 5000 reactjs ise 3000 farklı domainler olmuş oluyor. Bu durumda browser 2 farklı domain arasında kaynak paylaşımını kapamış oluyor. buna Cors policy ismi veririz. npm i cors paketi ile bu özelliği api da arkadaşın aşağıdaki gibi ayarlaması lazım.
 
 var app = express();
+app.use(cors())
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -22,6 +24,28 @@ app.use(express.static(path.join(__dirname, 'public'))); // assets klasörüne d
 
 app.use('/', indexRouter); // uygulamaya gelen istekleri yakalamamız sağlayan routelarımız 
 app.use('/users', usersRouter);
+
+
+// mongodb bağlantısı mongodb://127.0.0.1:27017 local mongodb adresi
+MongoClient.connect('mongodb://127.0.0.1:27017', (err, client) => {
+
+  const db = client.db('mydb'); // database bağlantısı eğer db yoksa kendisi otomatik olarak bu isimde bir dibi açar.
+
+
+  if (err) throw err
+
+  // db içerisinde tablomuz colletion oluyor.
+  db.collection('users').find().toArray((err, result) => {
+
+    // result ise birden fazla document döndürür.
+    console.log('users', result);
+
+    if (err) throw err
+
+    console.log(result)
+  })
+})
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -42,3 +66,19 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app; // app.js dosyasının başka js dosyalarında okunabilmesi için module.exports keyword kullanırız.
+
+
+//https://northwind.vercel.app/api/customers
+//https://northwind.vercel.app/api/products
+//https://northwind.vercel.app/api/categories
+//https://northwind.vercel.app/api/suppliers
+//https://northwind.vercel.app/api/orders
+
+// https://rapidapi.com/blog/lp/imdb-api/?utm_source=google&utm_medium=cpc&utm_campaign=Alpha&utm_term=imdb%20api_e&gclid=CjwKCAjwloCSBhAeEiwA3hVo_Z4Wcv7VpL3RIUnngWQYiu7hDmwrzta9FBcK3ImGQYY9PagYN9KkORoCdNgQAvD_BwE
+
+// imdb api üzerinden filmler çekip ekranda gösterebiliriz.
+
+// https://jsonplaceholder.typicode.com/
+
+
+
